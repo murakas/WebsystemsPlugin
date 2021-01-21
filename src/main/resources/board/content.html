@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Многофункциональный Миграционный Центр</title>
+    <!-- App css -->
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body> 
+    <header>
+      <h2 class="header-date"></h2>
+      <h2 class="mfc-name">Многофункциональный Миграционный Центр</h2>
+      <h2 class="header-time"></h2>
+    </header>
+    <main class="queue-window">
+      <div class="wrapper d-none" data-content>
+        <h3 class="queue-title">Ближайшие в очереди</h3>
+        <!--<div class="queue-list">
+        </div> -->
+        <ul class="queue-list"> 
+        </ul>
+      </div>
+      <div class="wrapper d-none" data-content>
+        <table class="table queue-table right-table">
+          <thead>
+            <tr>
+              <th class="client">Клиент</th>
+              <th class="arrow"></th>
+              <th class="window">Окно</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="loading" id="loading">
+        <div class="loading-wrapper">
+          <span>Происходит подключение к серверу</span>
+          <div class="spiner"></div>
+        </div> 
+      </div>
+    </main> 
+    <script>
+
+      const liveDate = () => {
+        let monthsArr = [
+                  "Января",
+                  "Февраля",
+                  "Марта",
+                  "Апреля",
+                  "Мая",
+                  "Июня",
+                  "Июля",
+                  "Августа",
+                  "Сентября",
+                  "Октября",
+                  "Ноября",
+                  "Декабря"
+                ];
+
+        var year = new Date().getFullYear();
+        var month = new Date().getMonth();
+        var numDay = new Date().getDate(); 
+        var hour = new Date().getHours();
+        var minute = new Date().getMinutes();
+        var second = new Date().getSeconds();
+
+        minute < 10 ? minute = "0" + minute : void 0;
+        second < 10 ? second = "0" + second : void 0;  
+        var date = `${numDay} ${monthsArr[month]} ${year}г.`;
+        let time = `${hour}:${minute}:${second}`;
+        document.querySelector(".header-date").textContent = date;
+        document.querySelector(".header-time").textContent = time;
+        setTimeout(liveDate, 1000);
+      }
+
+      liveDate();
+      
+      const execute_queue = (data) => {
+          console.log(data);
+          let tbody = document.querySelector("tbody");
+          let qlist = document.querySelector(".queue-list"); 
+
+          tbody.innerHTML = "";
+          qlist.innerHTML = ""; 
+          data.onBoard.reverse().forEach(item => {
+            let color = null;
+            item.floor == 1 ? color = "red" : color = "blue";
+            let clients = `<tr class="blink_${item.blink} ${color}">
+                            <td class="client">${item.number}</td>
+                            <td class="arrow"><img src="img/icons/right-arrow.svg" width="60" height="60" alt=""></td>
+                            <td class="window">${item.point}</td>
+                            ${item.floor ? `<td class="floor">(${item.floor} эт.)</td>` : ''}
+                          </tr>`; 
+            tbody.innerHTML += clients;
+          }) 
+
+          data.nexts.some((item, index, array) => {
+              let nexts = `<li><h2 class="queue-client">${item}</h2></li>`;
+              qlist.innerHTML += nexts;
+              return (index === 27);
+            });
+      }; 
+
+      const showLoading = (bool) => {
+        const content = document.querySelectorAll('[data-content]');
+        const loader = document.querySelector('#loading');
+        if(bool) {
+          content.forEach( item => item.classList.add('d-none'))
+          loader.classList.remove('d-none');
+        } else {
+          content.forEach( item => item.classList.remove('d-none'))
+          loader.classList.add('d-none');
+        }
+        
+      }
+      
+      const startWebSoket = () => {
+        let socket = new WebSocket("ws://localhost:8881");
+        socket.onopen = (event) => {
+          showLoading(false);
+        }
+        socket.onmessage = (response) => {
+          execute_queue(JSON.parse(response.data));
+        }
+        socket.onclose = (event) => {
+          showLoading(true);
+          setTimeout(startWebSoket(), 3000)
+        }
+      };
+
+      startWebSoket();
+
+    </script>
+  </body>
+</html>

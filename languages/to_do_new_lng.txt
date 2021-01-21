@@ -1,0 +1,10 @@
+1. Take an original lang plugin.
+2. Unzip the plugin by 7zip.
+3. Convert files to utf8 by utfasc.bat. Key -toutf8. See patameters inside utfasc.bat.
+4. Change file xx_XX.properties in new way and rename the file as yy_YY.properties. xx/yy-language code, XX/YY-country code. xx_XX.properties in UTF-8 without BOM.
+5. Rename files in \ru\apertum\qsystem\client\forms\resources to the new way as blabla_xx_XX.properties to blabla_yy_YY.properties.
+6. Translate files in \ru\apertum\qsystem\client\forms\resources
+7. Convert the files to asc by utfasc.bat. Key -toascii. See patameters inside utfasc.bat.
+8. Zip all files to archive yy_YY.zip without compressing. Change .zip to .jar.
+
+You can add flag image for registration point in folder 'flags'.
