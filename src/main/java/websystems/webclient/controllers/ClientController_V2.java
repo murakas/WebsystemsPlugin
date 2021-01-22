@@ -2,6 +2,9 @@ package websystems.webclient.controllers;
 
 import com.google.gson.*;
 import lombok.extern.log4j.Log4j2;
+import org.hibernate.dialect.H2Dialect;
+import org.hibernate.dialect.MySQLDialect;
+import ru.apertum.qsystem.hibernate.ChangeServerAction;
 import websystems.mdm.controllers.MdmController;
 import websystems.webclient.models.ResponseClient;
 import ru.apertum.qsystem.common.NetCommander;
@@ -10,14 +13,15 @@ import ru.apertum.qsystem.common.exceptions.ClientException;
 import ru.apertum.qsystem.common.exceptions.QException;
 import ru.apertum.qsystem.common.model.INetProperty;
 import ru.apertum.qsystem.common.model.QCustomer;
-import ru.apertum.qsystem.hibernate.Dao;
 import ru.apertum.qsystem.server.model.QUser;
-import ru.apertum.qsystem.server.model.QUserList;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -69,24 +73,27 @@ public class ClientController_V2 {
     public String logIn(@FormParam("userId") long userId, @FormParam("userUuid") String userUuid) {
         if (userUuid == null || userUuid.isEmpty()) return
                 GSON.toJson(new ResponseClient(format.format(new Date()), 1, "error", "Параметр userUuid не может быть пустым", null, "/logIn"));
-        final ResponseClient responseClient;
+        ResponseClient responseClient;
+
         final long start = go();
-        final QUser user = QUserList.getInstance().getById(userId);
-        log.info("[/logIn] Связываем пользователя АИС Логистика с окном путем обновления поля userUuid = " + userUuid + " пользователю " + user.getName());
-        //user.setUserUuid(userUuid);
-        final Exception exception = Dao.get().execute(() -> {
-            try {
-                Dao.get().saveOrUpdate(user);
-            } catch (Exception e) {
-                log.error("[/logIn] Ошибка обновления поля user_uuid = " + userUuid + " пользователю " + user.getName(), e);
-                return e;
-            }
-            return null;
-        });
-        if (exception == null) {
+        log.info("[/logIn] Связываем пользователя АИС Логистика с окном путем обновления поля userUuid = " + userUuid + " пользователю c id=" + userId);
+        try {
+            ChangeServerAction config = new ChangeServerAction();
+
+            Class.forName(config.getDriver().contains("mysql") ? MySQLDialect.class.getName() : H2Dialect.class.getName());
+
+            Connection conn = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getParolcheg());
+
+            PreparedStatement preparedStmt = conn.prepareStatement("update users set user_uuid = ? where id = ?");
+            preparedStmt.setString(1, userUuid);
+            preparedStmt.setLong(2, userId);
+            preparedStmt.executeUpdate();
+            preparedStmt.close();
+
+            conn.close();
             responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "Успешно связан " + userId + " с " + userUuid, null, "/logIn");
-        } else {
-            responseClient = new ResponseClient(format.format(new Date()), 1, "error", exception.getMessage(), null, "/logIn");
+        } catch (Exception e) {
+            responseClient = new ResponseClient(format.format(new Date()), 1, "error", e.getMessage(), null, "/logIn");
         }
         end(start);
 
