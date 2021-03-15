@@ -1,4 +1,4 @@
-package websystems.webclient.models;
+package websystems.models.webclient;
 
 import com.google.gson.JsonElement;
 

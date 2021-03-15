@@ -1,4 +1,4 @@
-package websystems.webclient.controllers;
+package websystems.controllers.webclient;
 
 import ru.apertum.qsystem.client.model.QButton;
 import ru.apertum.qsystem.common.cmd.RpcGetAllServices;

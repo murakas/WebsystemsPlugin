@@ -1,4 +1,4 @@
-package websystems.mdm.models;
+package websystems.models.mdm;
 
 import java.io.Serializable;
 import com.google.gson.annotations.Expose;

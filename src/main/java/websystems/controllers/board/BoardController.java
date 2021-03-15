@@ -1,4 +1,4 @@
-package websystems.board;
+package websystems.controllers.board;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;

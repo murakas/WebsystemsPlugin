@@ -1,9 +1,9 @@
-package websystems.mdm.controllers;
+package websystems.controllers.mdm;
 
 import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
-import websystems.mdm.models.DataMdmObjectsAttributesUpload;
-import websystems.mdm.models.DataMdmObjectsUpload;
+import websystems.models.mdm.DataMdmObjectsAttributesUpload;
+import websystems.models.mdm.DataMdmObjectsUpload;
 import websystems.utils.HttpClientApi;
 import ru.apertum.qsystem.common.model.QCustomer;
 

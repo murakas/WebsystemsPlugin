@@ -4,3 +4,8 @@ mdmApi->tokenUri
 mdmApi->username
 mdmApi->password
 mdmApi->mfcUUID
+proxy->hostname
+proxy->hostname
+proxy->hostname
+proxy->hostname
+proxy->hostname

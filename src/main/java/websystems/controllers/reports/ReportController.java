@@ -1,9 +1,9 @@
-package websystems.reports.controllers;
+package websystems.controllers.reports;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.log4j.Log4j2;
-import websystems.reports.models.*;
+import websystems.models.reports.*;
 import ru.apertum.qsystem.hibernate.Dao;
 
 import javax.ws.rs.GET;
@@ -287,6 +287,12 @@ public class ReportController {
             }
         }));
         return GSON.toJson(responseBranchReports);
+    }
+
+    @GET
+    @Path("/murad")
+    public String murad(){
+        return "murad";
     }
 
 }

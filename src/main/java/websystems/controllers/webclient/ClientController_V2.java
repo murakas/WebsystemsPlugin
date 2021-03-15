@@ -1,12 +1,12 @@
-package websystems.webclient.controllers;
+package websystems.controllers.webclient;
 
 import com.google.gson.*;
 import lombok.extern.log4j.Log4j2;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import ru.apertum.qsystem.hibernate.ChangeServerAction;
-import websystems.mdm.controllers.MdmController;
-import websystems.webclient.models.ResponseClient;
+import websystems.controllers.mdm.MdmController;
+import websystems.models.webclient.ResponseClient;
 import ru.apertum.qsystem.common.NetCommander;
 import ru.apertum.qsystem.common.cmd.RpcGetSelfSituation;
 import ru.apertum.qsystem.common.exceptions.ClientException;

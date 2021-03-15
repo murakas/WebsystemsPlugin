@@ -1,4 +1,4 @@
-package websystems.reports.models;
+package websystems.models.reports;
 
 public class ResponseAvgWaitingTime {
     private String userName;

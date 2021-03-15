@@ -76,8 +76,9 @@ public class ServerStart implements IStartServer {
         servletHolder.setInitOrder(0);
         servletHolder.setInitParameter(
                 "jersey.config.server.provider.packages",
-                "websystems/webclient"
+                "websystems"
         );
+
 
         try {
             server.start();
@@ -116,7 +117,7 @@ public class ServerStart implements IStartServer {
 
         ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/queue/*");
         servletHolder.setInitOrder(0);
-        servletHolder.setInitParameter("jersey.config.server.provider.packages", "websystems/webclient");
+        servletHolder.setInitParameter("jersey.config.server.provider.packages", "websystems");
         try {
             server.start();
             server.join();

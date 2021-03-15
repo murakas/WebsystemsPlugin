@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package websystems.mdm.models;
+package websystems.models.mdm;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
