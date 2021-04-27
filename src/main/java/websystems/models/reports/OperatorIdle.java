@@ -5,12 +5,14 @@ public class OperatorIdle {
     private String userStartTime;
     private String userFinishTime;
     private String userUuid;
+    private Integer clientWaitPeriod;
 
-    public OperatorIdle(String date, String userStartTime, String userFinishTime, String userUuid) {
+    public OperatorIdle(String date, String userStartTime, String userFinishTime, String userUuid, Integer clientWaitPeriod) {
         this.date = date;
         this.userStartTime = userStartTime;
         this.userFinishTime = userFinishTime;
         this.userUuid = userUuid;
+        this.clientWaitPeriod = clientWaitPeriod;
     }
 
     public String getDate() {
@@ -43,5 +45,13 @@ public class OperatorIdle {
 
     public void setUserUuid(String userUuid) {
         this.userUuid = userUuid;
+    }
+
+    public Integer getClientWaitPeriod() {
+        return clientWaitPeriod;
+    }
+
+    public void setClientWaitPeriod(Integer clientWaitPeriod) {
+        this.clientWaitPeriod = clientWaitPeriod;
     }
 }

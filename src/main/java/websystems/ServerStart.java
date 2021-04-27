@@ -1,6 +1,7 @@
 package websystems;
 
 import lombok.extern.log4j.Log4j2;
+import ru.apertum.qsystem.common.QConfig;
 import websystems.utils.AppSettings;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -9,6 +10,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import ru.apertum.qsystem.common.exceptions.QException;
 import ru.apertum.qsystem.common.model.INetProperty;
 import ru.apertum.qsystem.extra.IStartServer;
+import websystems.utils.UdpServer;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -79,6 +81,8 @@ public class ServerStart implements IStartServer {
                 "websystems"
         );
 
+        UdpServer udpServer = new UdpServer(3129);
+        udpServer.start();
 
         try {
             server.start();
@@ -118,12 +122,16 @@ public class ServerStart implements IStartServer {
         ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/queue/*");
         servletHolder.setInitOrder(0);
         servletHolder.setInitParameter("jersey.config.server.provider.packages", "websystems");
+
+        UdpServer udpServer = new UdpServer(QConfig.cfg().getClientPort());
+        udpServer.start();
+
         try {
             server.start();
             server.join();
-            log.info("Сервер QWebClient запущен на 8008 порту");
+            log.info("Сервер WebSystemsPlugin запущен на 8008 порту");
         } catch (Exception e) {
-            log.error("Ошибка. QWebClient не запустился", e);
+            log.error("Ошибка. WebSystemsPlugin не запустился", e);
             System.exit(1);
         } finally {
             server.destroy();
@@ -132,7 +140,7 @@ public class ServerStart implements IStartServer {
 
     @Override
     public String getDescription() {
-        return "QWebClient";
+        return "WebSystemsPlugin";
     }
 
     @Override

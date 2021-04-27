@@ -1,11 +1,11 @@
 package websystems.models.reports;
 
-public class ResponseReportUser {
+public class ResponseUser {
     private String user;
     private String timestampStart;
     private String ticket;
 
-    public ResponseReportUser(String user, String timestampStart, String ticket) {
+    public ResponseUser(String user, String timestampStart, String ticket) {
         this.user = user;
         this.timestampStart = timestampStart;
         this.ticket = ticket;

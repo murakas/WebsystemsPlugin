@@ -6,16 +6,18 @@ public class ResponseOperatorIdle {
     String previousServiceEnd;
     String nextServiceStart;
     String idleTime;
+    Integer clientWaitPeriod;
 
     public ResponseOperatorIdle() {
     }
 
-    public ResponseOperatorIdle(String date, String userUuid, String previousServiceEnd, String nextServiceStart, String idleTime) {
+    public ResponseOperatorIdle(String date, String userUuid, String previousServiceEnd, String nextServiceStart, String idleTime, Integer clientWaitPeriod) {
         this.date = date;
         this.userUuid = userUuid;
         this.previousServiceEnd = previousServiceEnd;
         this.nextServiceStart = nextServiceStart;
         this.idleTime = idleTime;
+        this.clientWaitPeriod = clientWaitPeriod;
     }
 
     public String getDate() {
@@ -56,5 +58,13 @@ public class ResponseOperatorIdle {
 
     public void setIdleTime(String idleTime) {
         this.idleTime = idleTime;
+    }
+
+    public Integer getClientWaitPeriod() {
+        return clientWaitPeriod;
+    }
+
+    public void setClientWaitPeriod(Integer clientWaitPeriod) {
+        this.clientWaitPeriod = clientWaitPeriod;
     }
 }

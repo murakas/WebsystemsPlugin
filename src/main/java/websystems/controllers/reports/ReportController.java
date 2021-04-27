@@ -52,18 +52,18 @@ public class ReportController {
                         "CAST( s.user_start_time AS DATE ) >= ? and CAST( s.user_start_time AS DATE ) <= ? " +
                         "ORDER BY " +
                         "u.NAME, 'Время начала работы'";
-        List<ResponseReportUser> responseReportUsers = new ArrayList<>();
+        List<ResponseUser> responseUsers = new ArrayList<>();
         Dao.get().execute(() -> Dao.get().getSession().doWork((Connection connection) -> {
             final PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, dateFrom);
             preparedStatement.setString(2, dateTo);
             try (ResultSet set = preparedStatement.executeQuery()) {
                 while (set.next()) {
-                    responseReportUsers.add(new ResponseReportUser(set.getString("userName"), set.getString("startTime"), set.getString("ticket")));
+                    responseUsers.add(new ResponseUser(set.getString("userName"), set.getString("startTime"), set.getString("ticket")));
                 }
             }
         }));
-        return GSON.toJson(responseReportUsers);
+        return GSON.toJson(responseUsers);
     }
 
     /**
@@ -121,14 +121,15 @@ public class ReportController {
                 "select date(s.client_stand_time) as 'date'," +
                         "s.user_uuid, " +
                         "DATE_ADD(s.user_start_time, INTERVAL 3 HOUR) as 'user_start_time', " +
-                        "DATE_ADD(s.user_finish_time, INTERVAL 3 HOUR) as 'user_finish_time' " +
+                        "DATE_ADD(s.user_finish_time, INTERVAL 3 HOUR) as 'user_finish_time', " +
+                        "s.client_wait_period " +
                         "from " +
                         "qsystem.statistic s " +
                         "where " +
                         "date(s.client_stand_time) >= ? " +
-                        "and date(s.client_stand_time) <= ? " +
+                        "and date(s.client_stand_time) <= ? and s.user_uuid = '23ab062a-ff39-4bb3-81ab-7b95b0966a12' " +
                         "order by " +
-                        "s.user_id, s.user_start_time, s.user_finish_time";
+                        "s.user_uuid, s.user_start_time";
         List<OperatorIdle> operatorIdles = new ArrayList<>();
         Dao.get().execute(() -> Dao.get().getSession().doWork((Connection connection) -> {
             final PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -140,34 +141,44 @@ public class ReportController {
                             set.getString("date"),
                             set.getString("user_start_time"),
                             set.getString("user_finish_time"),
-                            set.getString("user_uuid")));
+                            set.getString("user_uuid"),
+                            set.getInt("client_wait_period")));
                 }
             }
         }));
 
-        operatorIdles.sort(Comparator.comparing(OperatorIdle::getUserUuid).thenComparing(OperatorIdle::getUserStartTime));
-
         List<ResponseOperatorIdle> responseOperatorIdles = new ArrayList<>();
         if (operatorIdles.size() > 0) {
 
-            Set<String> userUuid = new HashSet<>();
-            Set<String> date = new HashSet<>();
+            Set<String> userUuidTmp = new HashSet<>();
+            Set<String> dateTmp = new HashSet<>();
 
             operatorIdles.stream()
-                    .filter(n -> !userUuid.add(n.getUserUuid()))
+                    .filter(n -> !userUuidTmp.add(n.getUserUuid()))
                     .collect(Collectors.toSet());
 
             operatorIdles.stream()
-                    .filter(n -> !date.add(n.getDate()))
+                    .filter(n -> !dateTmp.add(n.getDate()))
                     .collect(Collectors.toSet());
 
-            userUuid.stream().forEach(s -> System.out.println(s));
+            List<String> date = new ArrayList<>(dateTmp);
+            List<String> userUuid = new ArrayList<>(userUuidTmp);
+
+            Collections.sort(date);
+            Collections.sort(userUuid);
+
+            for (String s : date) {
+                System.out.println(s);
+            }
 
             for (String uu : userUuid) {
                 for (String dd : date) {
                     List<OperatorIdle> tmpList = operatorIdles.stream()
                             .filter(operatorIdle -> uu.equals(operatorIdle.getUserUuid()) && dd.equals(operatorIdle.getDate()))
                             .collect(Collectors.toList());
+//                    for (OperatorIdle o : tmpList) {
+//                        System.out.println(o.getUserUuid() + ", " + o.getDate() + ", " + o.getUserStartTime() + ", " + o.getUserFinishTime() + ", " + o.getClientWaitPeriod());
+//                    }
                     responseOperatorIdles = Stream.concat(responseOperatorIdles.stream(),
                             calculateOperatorIdle(tmpList).stream()).collect(Collectors.toList());
                 }
@@ -189,10 +200,12 @@ public class ReportController {
                 responseOperatorIdle.setNextServiceStart(current.getUserStartTime());
                 responseOperatorIdle.setPreviousServiceEnd(previous.getUserFinishTime());
                 responseOperatorIdle.setUserUuid(current.getUserUuid());
+                responseOperatorIdle.setClientWaitPeriod(previous.getClientWaitPeriod());
 
                 DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
                 Date dateN = format.parse(current.getUserStartTime());
                 Date dateP = format.parse(previous.getUserFinishTime());
+                System.out.println(dateN.getTime() + " - " + dateP.getTime() + " - " + (previous.getClientWaitPeriod() * 60 * 1000));
                 long milliseconds = dateN.getTime() - dateP.getTime();
                 long diffMinutes = milliseconds / (60L * 1000);
                 responseOperatorIdle.setIdleTime(String.valueOf(diffMinutes));
@@ -289,10 +302,34 @@ public class ReportController {
         return GSON.toJson(responseBranchReports);
     }
 
+    /**
+     * Получить количество предварительно записанных.
+     *
+     * @param dateFrom дата с
+     * @param dateTo   дата по
+     * @return ResponseBranchReport
+     */
+
     @GET
-    @Path("/murad")
-    public String murad(){
-        return "murad";
+    @Path("/getPreRecordedNumber")
+    public String getPreRecordedNumber(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo) {
+
+        String sql = "select count(a.id) from qsystem.advance a where date(a.advance_time) >= ? and date(a.advance_time) <= ?";
+
+        Integer quantity[] = new Integer[1];
+        quantity[0] = 0;
+
+        Dao.get().execute(() -> Dao.get().getSession().doWork((Connection connection) -> {
+            final PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, dateFrom);
+            preparedStatement.setString(2, dateTo);
+            try (ResultSet set = preparedStatement.executeQuery()) {
+                while (set.next()) {
+                    quantity[0] = set.getInt(1);
+                }
+            }
+        }));
+        return GSON.toJson(quantity[0]);
     }
 
 }

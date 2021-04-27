@@ -2,6 +2,7 @@ package websystems.controllers.webclient;
 
 import com.google.gson.*;
 import lombok.extern.log4j.Log4j2;
+import org.eclipse.jetty.server.Request;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import ru.apertum.qsystem.hibernate.ChangeServerAction;
@@ -14,14 +15,15 @@ import ru.apertum.qsystem.common.exceptions.QException;
 import ru.apertum.qsystem.common.model.INetProperty;
 import ru.apertum.qsystem.common.model.QCustomer;
 import ru.apertum.qsystem.server.model.QUser;
+import websystems.utils.WSSHandler;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +34,7 @@ import java.util.Locale;
 @Log4j2
 @Path("/api/client")
 public class ClientController_V2 {
+
     private static final String KEYS_OFF = "000000";
     //private static final String KEYS_ALL = "111111";
     private static final String KEYS_MAY_INVITE = "100000";
@@ -41,6 +44,8 @@ public class ClientController_V2 {
     final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss:SSS", Locale.ENGLISH);
     private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
+    @Context
+    private HttpServletRequest servletRequest;
 
     private static final INetProperty NET_PROPERTY = new INetProperty() {
 
@@ -84,13 +89,46 @@ public class ClientController_V2 {
 
             Connection conn = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getParolcheg());
 
-            PreparedStatement preparedStmt = conn.prepareStatement("update users set user_uuid = ? where id = ?");
-            preparedStmt.setString(1, userUuid);
-            preparedStmt.setLong(2, userId);
-            preparedStmt.executeUpdate();
-            preparedStmt.close();
+            //Получаем данные о прошлой авторизации
+            boolean needUpdate = true;
+            boolean needResetAuthorization = false;
+            PreparedStatement stmt = conn.prepareStatement("select id, last_ip from users where user_uuid = ?");
+            stmt.setString(1, userUuid);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                //если ранее не авторизован то будет null, выходим и обновляем
+                if (!rs.wasNull()) {
+                    //если ранее был авторизован, проверяем в том же окне
+                    //если да то нет смысла обновляться
+                    if (rs.getLong(1) == userId && rs.getString(2).equals(servletRequest.getRemoteAddr()))
+                        needUpdate = false;
+                        //иначе сбрасываем предыдущую авторизацию и обновляемся
+                    else {
+                        needUpdate = true;
+                        needResetAuthorization = true;
 
+                        PreparedStatement preparedStmt = conn.prepareStatement("update users set user_uuid = ?, last_ip = ? where user_uuid = ?");
+                        preparedStmt.setString(1, "00000000-0000-0000-0000-000000000000");
+                        preparedStmt.setString(2, "000.000.000.000");
+                        preparedStmt.setString(3, userUuid);
+                        preparedStmt.executeUpdate();
+                        preparedStmt.close();
+                    }
+                }
+            }
+
+            if (needUpdate) {
+                PreparedStatement preparedStmt1 = conn.prepareStatement("update users set user_uuid = ?, last_ip = ? where id = ?");
+                preparedStmt1.setString(1, userUuid);
+                preparedStmt1.setString(2, servletRequest.getRemoteAddr());
+                preparedStmt1.setLong(3, userId);
+                preparedStmt1.executeUpdate();
+                preparedStmt1.close();
+            }
             conn.close();
+
+            if (needResetAuthorization) WSSHandler.resetAuthorization(userId);
+
             responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "Успешно связан " + userId + " с " + userUuid, null, "/logIn");
         } catch (Exception e) {
             responseClient = new ResponseClient(format.format(new Date()), 1, "error", e.getMessage(), null, "/logIn");
@@ -123,6 +161,56 @@ public class ClientController_V2 {
         }
 
         end(start);
+        return GSON.toJson(responseClient);
+    }
+
+
+    /**
+     * Проверка перед авторизацией.
+     *
+     * @param userUuid пользователя
+     * @return Json
+     */
+    @POST
+    @Path("/checkBeforeAuthorization")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public String checkBeforeAuthorization(@FormParam("userUuid") String userUuid) {
+        if (userUuid == null || userUuid.isEmpty()) return
+                GSON.toJson(new ResponseClient(format.format(new Date()), 1, "error", "Параметр userUuid не может быть пустым", null, "/checkBeforeAuthorization"));
+
+        ResponseClient responseClient;
+
+        final long start = go();
+        log.info("[/checkBeforeAuthorization] Перед авторизацией в окне проверим небыло ли ранее незавершенной авторизации userUuid = " + userUuid);
+        try {
+            ChangeServerAction config = new ChangeServerAction();
+
+            Class.forName(config.getDriver().contains("mysql") ? MySQLDialect.class.getName() : H2Dialect.class.getName());
+
+            Connection conn = DriverManager.getConnection(config.getUrl(), config.getUser(), config.getParolcheg());
+
+            //Проверим небыло ли авторизации на другом окне
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery("select point from users where user_uuid = ?");
+            String n = "";
+            while (rs.next()) {
+                n = rs.getString(1);
+            }
+
+            if (n != null || !n.isEmpty()) {
+                JsonElement element = new JsonPrimitive("{\"point\":\"" + n + "\"}");
+                responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "true", element, "/checkBeforeAuthorization");
+            } else {
+                responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "false", null, "/checkBeforeAuthorization");
+            }
+
+            conn.close();
+        } catch (Exception e) {
+            responseClient = new ResponseClient(format.format(new Date()), 1, "error", e.getMessage(), null, "/logIn");
+        }
+        end(start);
+
         return GSON.toJson(responseClient);
     }
 
@@ -174,7 +262,12 @@ public class ClientController_V2 {
 //                    MdmController.inviteNextCustomer(customer);
 //                }
 //            }
-            responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "Вызван клиент " + customer.getFullNumber(), GSON.toJsonTree(customer), "/inviteNext");
+            if (customer != null) {
+                responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "Вызван клиент " + customer.getFullNumber(), GSON.toJsonTree(customer), "/inviteNext");
+            } else {
+                responseClient = new ResponseClient(format.format(new Date()), 1, "error", "При вызове следующего, вернулся null", null, "/inviteNext");
+            }
+
         } catch (Throwable th) {
             log.error("[/inviteNext] Ошибка вызова следующего клиента", th);
             responseClient = new ResponseClient(format.format(new Date()), 1, "error", th.getMessage(), null, "/inviteNext");
@@ -294,14 +387,13 @@ public class ClientController_V2 {
             responseClient = new ResponseClient(format.format(new Date()), 1, "error", e.getMessage(), null, "/finishCustomer");
         }
 
-        if (customer != null) {
-            final QCustomer threadCustomer = customer;
-            threadCustomer.setStartTime(new Date(customerStartTime));
-            Runnable task = () -> MdmController.save_4_2_3_34_mdmObjects(threadCustomer, userId);
-            Thread thread = new Thread(task);
-            thread.start();
-
-        }
+//        if (customer != null) {
+//            final QCustomer threadCustomer = customer;
+//            threadCustomer.setStartTime(new Date(customerStartTime));
+//            Runnable task = () -> MdmController.save_4_2_3_34_mdmObjects(threadCustomer, userId);
+//            Thread thread = new Thread(task);
+//            thread.start();
+//        }
         end(start);
 
         return GSON.toJson(responseClient);
