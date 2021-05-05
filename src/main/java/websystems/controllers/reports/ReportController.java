@@ -330,6 +330,7 @@ public class ReportController {
             }
         }));
         return GSON.toJson(quantity[0]);
+
     }
 
 }

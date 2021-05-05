@@ -83,7 +83,7 @@
 
           tbody.innerHTML = "";
           qlist.innerHTML = ""; 
-          data.onBoard.reverse().forEach(item => {
+          data.onBoard.forEach(item => {
             let color = null;
             item.floor == 1 ? color = "red" : color = "blue";
             let clients = `<tr class="blink_${item.blink} ${color}">

@@ -2,6 +2,7 @@ package websystems;
 
 import lombok.extern.log4j.Log4j2;
 import ru.apertum.qsystem.common.QConfig;
+import websystems.controllers.board.BoardController;
 import websystems.utils.AppSettings;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -40,7 +41,6 @@ public class ServerStart implements IStartServer {
     };
 
     public static void main(String[] args) {
-
         try {
             InetAddress ip = InetAddress.getLocalHost();
             System.out.println("Current IP address : " + ip.getHostAddress());
