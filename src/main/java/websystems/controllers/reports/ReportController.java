@@ -127,7 +127,7 @@ public class ReportController {
                         "qsystem.statistic s " +
                         "where " +
                         "date(s.client_stand_time) >= ? " +
-                        "and date(s.client_stand_time) <= ? and s.user_uuid = '23ab062a-ff39-4bb3-81ab-7b95b0966a12' " +
+                        "and date(s.client_stand_time) <= ? " +
                         "order by " +
                         "s.user_uuid, s.user_start_time";
         List<OperatorIdle> operatorIdles = new ArrayList<>();

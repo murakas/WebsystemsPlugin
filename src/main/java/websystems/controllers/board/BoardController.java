@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.dom4j.Element;
+import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.WebSocketServer;
 import ru.apertum.qsystem.client.forms.AFBoardRedactor;
 import ru.apertum.qsystem.common.CustomerState;
 import ru.apertum.qsystem.common.model.QCustomer;
@@ -12,20 +15,59 @@ import ru.apertum.qsystem.server.model.QService;
 import ru.apertum.qsystem.server.model.QServiceTree;
 import ru.apertum.qsystem.server.model.QUser;
 import ru.apertum.qsystem.server.model.QUserList;
-import websystems.utils.WSServer;
 
 import javax.swing.*;
+import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
 public class BoardController implements IIndicatorBoard {
 
-    private static final Gson GSON = new Gson();
-    private static final String BLINK = "blink";
-    private static WSServer wsserver = new WSServer(8881);
-    private static String cmd = "firefox.exe -kiosk file://";
-    private static Runtime run = Runtime.getRuntime();
-    private static Process pr;
+    private final Gson GSON = new Gson();
+    private final String BLINK = "blink";
+    private WSSBoard wssBoard = new WSSBoard(8881);
+    private String cmd = "firefox.exe -kiosk file://";
+    private Runtime run = Runtime.getRuntime();
+    private Process pr;
+    private String fullPath = BoardController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    private final String PATH = fullPath.substring(0, fullPath.lastIndexOf("/"));
+
+    class WSSBoard extends WebSocketServer {
+
+        public WSSBoard(int port) {
+            super(new InetSocketAddress(port));
+        }
+
+        @Override
+        public void onOpen(WebSocket conn, ClientHandshake handshake) {
+            broadcast(prepareContent());
+        }
+
+        @Override
+        public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+        }
+
+        @Override
+        public void onMessage(WebSocket conn, String message) {
+        }
+
+        @Override
+        public void onError(WebSocket conn, Exception ex) {
+        }
+
+        @Override
+        public void onStart() {
+            runFirefox();
+        }
+    }
+
+    public BoardController() {
+        init();
+    }
+
+    private void init() {
+        wssBoard.start();
+    }
 
     /**
      * Сбор данных для передачи.
@@ -79,7 +121,7 @@ public class BoardController implements IIndicatorBoard {
     }
 
     private void sendContent() {
-        wsserver.broadcast(prepareContent());
+        wssBoard.broadcast(prepareContent());
     }
 
     @Override
@@ -109,23 +151,15 @@ public class BoardController implements IIndicatorBoard {
 
     @Override
     public void refresh() {
+        if (pr != null && pr.isAlive()) pr.destroy();
+        runFirefox();
         sendContent();
     }
 
     @Override
     public void showBoard() {
-        String fullPath = BoardController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String path = fullPath.substring(0, fullPath.lastIndexOf("/"));
-        try {
-            wsserver.start();
-            Thread.sleep(3000);
-            JOptionPane.showMessageDialog(null, cmd + path + "/board/content.html");
-            pr = run.exec(cmd + path + "/board/content.html");
-            pr.waitFor();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
-        }
-
+        if (pr != null && pr.isAlive()) pr.destroy();
+        runFirefox();
         sendContent();
     }
 
@@ -168,10 +202,9 @@ public class BoardController implements IIndicatorBoard {
         return 1363l;
     }
 
-    public static void main(String[] args) {
+    private void runFirefox() {
         try {
-            Thread.sleep(3000);
-            pr = run.exec(cmd + "file://C:/Users/Murad/Documents/PROJECTS/qsystem_release-20_1/plugins/board/content.html");
+            pr = run.exec(cmd + PATH + "/board/content.html");
             pr.waitFor();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);

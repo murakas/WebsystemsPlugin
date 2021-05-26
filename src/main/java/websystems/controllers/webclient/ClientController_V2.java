@@ -2,11 +2,9 @@ package websystems.controllers.webclient;
 
 import com.google.gson.*;
 import lombok.extern.log4j.Log4j2;
-import org.eclipse.jetty.server.Request;
 import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.MySQLDialect;
 import ru.apertum.qsystem.hibernate.ChangeServerAction;
-import websystems.controllers.mdm.MdmController;
 import websystems.models.webclient.ResponseClient;
 import ru.apertum.qsystem.common.NetCommander;
 import ru.apertum.qsystem.common.cmd.RpcGetSelfSituation;
@@ -15,7 +13,7 @@ import ru.apertum.qsystem.common.exceptions.QException;
 import ru.apertum.qsystem.common.model.INetProperty;
 import ru.apertum.qsystem.common.model.QCustomer;
 import ru.apertum.qsystem.server.model.QUser;
-import websystems.utils.WSSHandler;
+import websystems.utils.WSSClientHandler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -127,7 +125,7 @@ public class ClientController_V2 {
             }
             conn.close();
 
-            if (needResetAuthorization) WSSHandler.resetAuthorization(userId);
+            if (needResetAuthorization) WSSClientHandler.resetAuthorization(userId);
 
             responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "Успешно связан " + userId + " с " + userUuid, null, "/logIn");
         } catch (Exception e) {
@@ -256,12 +254,7 @@ public class ClientController_V2 {
         QCustomer customer;
         try {
             customer = NetCommander.inviteNextCustomer(NET_PROPERTY, userId);
-//            if (customer != null) {
-//                //только при первом вызове
-//                if (CustomerState.STATE_INVITED.equals(customer.getState())) {
-//                    MdmController.inviteNextCustomer(customer);
-//                }
-//            }
+
             if (customer != null) {
                 responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "Вызван клиент " + customer.getFullNumber(), GSON.toJsonTree(customer), "/inviteNext");
             } else {
@@ -378,7 +371,7 @@ public class ClientController_V2 {
         //QCustomer customer1 = GSON.fromJson(sourceCustomer, QCustomer.class);
         ResponseClient responseClient;
         log.info("[/finishCustomer] Завершить прием клиента id = " + customerId);
-        QCustomer customer = null;
+        QCustomer customer;
         try {
             customer = NetCommander.getFinishCustomer(NET_PROPERTY, userId, customerId, res, resComments);
             responseClient = new ResponseClient(format.format(new Date()), 0, "ok", "Работа с клиентом " + customer.getFullNumber() + " успешна завершена", GSON.toJsonTree(customer), "/finishCustomer");
@@ -390,7 +383,7 @@ public class ClientController_V2 {
 //        if (customer != null) {
 //            final QCustomer threadCustomer = customer;
 //            threadCustomer.setStartTime(new Date(customerStartTime));
-//            Runnable task = () -> MdmController.save_4_2_3_34_mdmObjects(threadCustomer, userId);
+//            Runnable task = () -> Mdm.save_4_2_3_34_mdmObjects(threadCustomer, userId);
 //            Thread thread = new Thread(task);
 //            thread.start();
 //        }
@@ -555,7 +548,6 @@ public class ClientController_V2 {
         end(start);
         return GSON.toJson(responseClient);
     }
-
 
     /*
      * ****************************************************************************************************************

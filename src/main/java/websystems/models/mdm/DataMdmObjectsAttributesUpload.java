@@ -15,13 +15,16 @@ import java.io.Serializable;
  */
 public class DataMdmObjectsAttributesUpload implements Serializable {
 
+    public DataMdmObjectsAttributesUpload() {
+    }
+
     public DataMdmObjectsAttributesUpload(Integer sprMdmObjectAttributeId, String mdmAttributeValue) {
         this.sprMdmObjectAttributeId = sprMdmObjectAttributeId;
         this.mdmAttributeValue = mdmAttributeValue;
     }
 
     @Expose
-    @SerializedName("id")//spr_mdm_object_attribute_id
+    @SerializedName("spr_mdm_object_attribute_v2_id")//spr_mdm_object_attribute_id
     private Integer sprMdmObjectAttributeId;
 
     public void setSprMdmObjectTypeId(Integer mdmObjectAttributeId) {
@@ -33,7 +36,7 @@ public class DataMdmObjectsAttributesUpload implements Serializable {
     }
 
     @Expose
-    @SerializedName("value")//mdm_attribute_value
+    @SerializedName("mdm_attribute_value")//mdm_attribute_value
     private String mdmAttributeValue;
 
     public void setMdmAttributeValue(String mdmAttributeValue) {

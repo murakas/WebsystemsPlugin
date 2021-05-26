@@ -96,7 +96,7 @@ public class ServerStart implements IStartServer {
     }
 
     /**
-     * Старту сервера.
+     * Старт сервера.
      */
     @Override
     public void start() {

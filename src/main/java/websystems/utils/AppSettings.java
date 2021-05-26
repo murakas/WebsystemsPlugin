@@ -84,7 +84,7 @@ public class AppSettings {
             } catch (NullPointerException e) {
                 log.error("Ошибка, в базе данных отсутствуют некоторые поля, проверьте базу данных", e);
             }
-            HttpClientApi.getToken();
+            //HttpClientApi.getToken();
         }
     }
 }

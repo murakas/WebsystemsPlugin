@@ -8,11 +8,11 @@ public class UdpServer extends AUdpServer {
 
     public UdpServer(int port) {
         super(port);
-        WSSHandler.start();
+        WSSClientHandler.start();
     }
 
     @Override
     protected void getData(String s, InetAddress inetAddress, int clientPort) {
-        WSSHandler.newCustomer(s);
+        WSSClientHandler.newCustomer(s);
     }
 }

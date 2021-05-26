@@ -1,35 +1,33 @@
 package websystems.models.mdm;
 
 import java.io.Serializable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
 /**
- *
  * @author Murad
  */
 public class DataMdmObjectsUpload implements Serializable {
 
-    /*public DataMdmObjectsUpload() {
-        //Для хибернейт
-    }*/
     @Expose
-    @SerializedName("mfc_id")
-    private UUID sprEmployeesMfcId;
+    @SerializedName("spr_employees_mfc_id")
+    private String sprEmployeesMfcId;
 
-    public void setSprEmployeesMfcId(UUID sprEmployeesMfcId) {
+    public void setSprEmployeesMfcId(String sprEmployeesMfcId) {
         this.sprEmployeesMfcId = sprEmployeesMfcId;
     }
 
-    public UUID getSprEmployeesMfcId() {
+    public String getSprEmployeesMfcId() {
         return sprEmployeesMfcId;
     }
 
     @Expose
-    @SerializedName("object_type_id")
+    @SerializedName("spr_mdm_object_type_v2_id")
     private Integer sprMdmObjectTypeId;
 
     public void setSprMdmObjectTypeId(Integer mdmObjectTypeId) {
@@ -41,37 +39,37 @@ public class DataMdmObjectsUpload implements Serializable {
     }
 
     @SerializedName("data_services_id")
-    private UUID dataServicesId;
+    private String dataServicesId;
 
-    public UUID getDataServicesId() {
+    public String getDataServicesId() {
         return dataServicesId;
     }
 
-    public void setDataServicesId(UUID dataServicesId) {
+    public void setDataServicesId(String dataServicesId) {
         this.dataServicesId = dataServicesId;
     }
 
     @SerializedName("created_date")
 
-    private Date createdDate;
+    private String createdDate;
 
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(String createdDate) {
         this.createdDate = createdDate;
     }
 
-    public Date getCreatedDate() {
+    public String getCreatedDate() {
         return createdDate;
     }
 
     @Expose
-    @SerializedName("attributes_v2")//data_mdm_objects_attributes_upload
+    @SerializedName("data_mdm_objects_attributes_upload_v2")
     public ArrayList<DataMdmObjectsAttributesUpload> attribute;
 
-    public ArrayList<DataMdmObjectsAttributesUpload> getAttributes() {
+    public ArrayList<DataMdmObjectsAttributesUpload> getAttribute() {
         return attribute;
     }
 
-    public void setAttributes(ArrayList<DataMdmObjectsAttributesUpload> attributes) {
-        this.attribute = attributes;
+    public void setAttribute(ArrayList<DataMdmObjectsAttributesUpload> attribute) {
+        this.attribute = attribute;
     }
 }

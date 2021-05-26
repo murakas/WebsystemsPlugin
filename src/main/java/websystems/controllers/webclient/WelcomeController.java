@@ -40,7 +40,7 @@ public class WelcomeController implements IWelcome {
 
     @Override
     public void readyNewCustomer(QButton qButton, QCustomer qCustomer, QService qService) {
-        //MdmController.standInService(qCustomer);
+        //Mdm.standInService(qCustomer);
     }
 
     @Override
