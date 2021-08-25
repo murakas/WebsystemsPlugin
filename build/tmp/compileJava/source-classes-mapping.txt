@@ -1,0 +1,67 @@
+websystems/utils/UdpServer.java
+ websystems.utils.UdpServer
+websystems/domains/reports/ResponseUser.java
+ websystems.domains.reports.ResponseUser
+websystems/controllers/preentry/PreEntryController.java
+ websystems.controllers.preentry.PreEntryController
+ websystems.controllers.preentry.PreEntryController$1
+websystems/domains/reports/ResponseOperatorIdle.java
+ websystems.domains.reports.ResponseOperatorIdle
+websystems/ServerStart.java
+ websystems.ServerStart
+ websystems.ServerStart$1
+websystems/WelcomeStart.java
+ websystems.WelcomeStart
+websystems/utils/WSServer.java
+ websystems.utils.WSServer
+websystems/domains/mdm/ObjectsIdentifierMfc.java
+ websystems.domains.mdm.ObjectsIdentifierMfc
+websystems/controllers/webclient/WelcomeController.java
+ websystems.controllers.webclient.WelcomeController
+websystems/domains/mdm/DataMdmObjectsUpload.java
+ websystems.domains.mdm.DataMdmObjectsUpload
+websystems/domains/preentry/PreEntry.java
+ websystems.domains.preentry.PreEntry
+websystems/utils/AppSettings.java
+ websystems.utils.AppSettings
+websystems/utils/CORSFilter.java
+ websystems.utils.CORSFilter
+websystems/controllers/board/BoardController.java
+ websystems.controllers.board.BoardController
+ websystems.controllers.board.BoardController$WSS
+websystems/domains/webclient/UserMfc.java
+ websystems.domains.webclient.UserMfc
+websystems/utils/HttpClientApi.java
+ websystems.utils.HttpClientApi
+ websystems.utils.HttpClientApi$1
+websystems/domains/reports/ResponseAvgWaitingTime.java
+ websystems.domains.reports.ResponseAvgWaitingTime
+websystems/domains/reports/OperatorIdle.java
+ websystems.domains.reports.OperatorIdle
+websystems/domains/webclient/ResponseClient.java
+ websystems.domains.webclient.ResponseClient
+websystems/domains/mdm/DataMdmObjectsAttributesUpload.java
+ websystems.domains.mdm.DataMdmObjectsAttributesUpload
+websystems/controllers/mdm/MDMController.java
+ websystems.controllers.mdm.MDMController
+websystems/domains/preentry/Customer.java
+ websystems.domains.preentry.Customer
+websystems/controllers/webclient/ClientController.java
+ websystems.controllers.webclient.ClientController
+ websystems.controllers.webclient.ClientController$1
+ websystems.controllers.webclient.ClientController$2
+websystems/utils/WSSClientHandler.java
+ websystems.utils.WSSClientHandler
+ websystems.utils.WSSClientHandler$SocketResponse
+websystems/controllers/reports/ReportController.java
+ websystems.controllers.reports.ReportController
+websystems/domains/reports/ResponseWaitingTime.java
+ websystems.domains.reports.ResponseWaitingTime
+websystems/domains/reports/ResponseBranchReport.java
+ websystems.domains.reports.ResponseBranchReport
+websystems/controllers/preentry/IPreEntry.java
+ websystems.controllers.preentry.IPreEntry
+websystems/utils/EncryptorPass.java
+ websystems.utils.EncryptorPass
+websystems/domains/preentry/Service.java
+ websystems.domains.preentry.Service

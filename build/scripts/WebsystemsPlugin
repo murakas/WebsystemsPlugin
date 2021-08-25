@@ -1,0 +1,185 @@
+#!/usr/bin/env sh
+
+#
+# Copyright 2015 the original author or authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+##############################################################################
+##
+##  WebsystemsPlugin start up script for UN*X
+##
+##############################################################################
+
+# Attempt to set APP_HOME
+# Resolve links: $0 may be a link
+PRG="$0"
+# Need this for relative symlinks.
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`/.." >/dev/null
+APP_HOME="`pwd -P`"
+cd "$SAVED" >/dev/null
+
+APP_NAME="WebsystemsPlugin"
+APP_BASE_NAME=`basename "$0"`
+
+# Add default JVM options here. You can also use JAVA_OPTS and WEBSYSTEMS_PLUGIN_OPTS to pass JVM options to this script.
+DEFAULT_JVM_OPTS=""
+
+# Use the maximum available, or set MAX_FD != -1 to use that value.
+MAX_FD="maximum"
+
+warn () {
+    echo "$*"
+}
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
+
+# OS specific support (must be 'true' or 'false').
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "`uname`" in
+  CYGWIN* )
+    cygwin=true
+    ;;
+  Darwin* )
+    darwin=true
+    ;;
+  MINGW* )
+    msys=true
+    ;;
+  NONSTOP* )
+    nonstop=true
+    ;;
+esac
+
+CLASSPATH=$APP_HOME/lib/WebsystemsPlugin.jar:$APP_HOME/lib/QSystem.jar:$APP_HOME/lib/AbsoluteLayout-RELEASE111.jar:$APP_HOME/lib/antlr-2.7.7.jar:$APP_HOME/lib/appframework-1.0.3.jar:$APP_HOME/lib/barbecue-1.5-beta1.jar:$APP_HOME/lib/basicplayer3.0.jar:$APP_HOME/lib/beansbinding-1.2.1.jar:$APP_HOME/lib/byte-buddy-1.8.17.jar:$APP_HOME/lib/c3p0-0.9.5.2.jar:$APP_HOME/lib/classmate-1.3.4.jar:$APP_HOME/lib/commons-beanutils-1.9.3.jar:$APP_HOME/lib/commons-cli-1.4.jar:$APP_HOME/lib/commons-codec-1.11.jar:$APP_HOME/lib/commons-collections-3.2.2.jar:$APP_HOME/lib/commons-configuration2-2.2.jar:$APP_HOME/lib/commons-dbcp-1.4.jar:$APP_HOME/lib/commons-digester-2.1.jar:$APP_HOME/lib/commons-jexl3-3.1.jar:$APP_HOME/lib/commons-lang3-3.7.jar:$APP_HOME/lib/commons-logging-1.2.jar:$APP_HOME/lib/commons-pool-1.6.jar:$APP_HOME/lib/compiler-0.9.7.jar:$APP_HOME/lib/core-3.4.1.jar:$APP_HOME/lib/dom4j-2.1.1.jar:$APP_HOME/lib/failureaccess-1.0.1.jar:$APP_HOME/lib/groovy-all-1.1-rc-1.jar:$APP_HOME/lib/gson-2.8.5.jar:$APP_HOME/lib/guava-30.0-jre.jar:$APP_HOME/lib/h2-1.4.197.jar:$APP_HOME/lib/hibernate-c3p0-5.3.6.Final.jar:$APP_HOME/lib/hibernate-commons-annotations-5.0.4.Final.jar:$APP_HOME/lib/hibernate-core-5.3.6.Final.jar:$APP_HOME/lib/hibernate-jpa-2.1-api-1.0.2.Final.jar:$APP_HOME/lib/httpcore-4.1.jar:$APP_HOME/lib/httpcore-nio-4.1.jar:$APP_HOME/lib/itext-2.1.7.jar:$APP_HOME/lib/jandex-2.0.5.Final.jar:$APP_HOME/lib/jasperreports-5.2.0.jar:$APP_HOME/lib/jasperreports-fonts-4.0.0.jar:$APP_HOME/lib/javahelp-2.0.05.jar:$APP_HOME/lib/javassist-3.23.1-GA.jar:$APP_HOME/lib/javax.activation-api-1.2.0.jar:$APP_HOME/lib/javax.persistence-api-2.2.jar:$APP_HOME/lib/javax.servlet-3.1.1.jar:$APP_HOME/lib/jboss-logging-3.3.2.Final.jar:$APP_HOME/lib/jboss-transaction-api_1.2_spec-1.1.1.Final.jar:$APP_HOME/lib/jcalendar-1.4.jar:$APP_HOME/lib/jcommon-1.0.16.jar:$APP_HOME/lib/jetty-annotations-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-continuation-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-http-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-io-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-runner-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-security-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-server-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-servlet-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-servlets-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-util-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-webapp-9.4.20.v20190813.jar:$APP_HOME/lib/jetty-xml-9.4.20.v20190813.jar:$APP_HOME/lib/jfreechart-1.0.13.jar:$APP_HOME/lib/jl1.0.jar:$APP_HOME/lib/jogg-0.0.7.jar:$APP_HOME/lib/jorbis-0.0.15.jar:$APP_HOME/lib/jspeex0.9.7.jar:$APP_HOME/lib/log4j-api-2.11.1.jar:$APP_HOME/lib/log4j-core-2.11.1.jar:$APP_HOME/lib/log4j-slf4j18-impl-2.11.1.jar:$APP_HOME/lib/mail-1.4.7.jar:$APP_HOME/lib/mchange-commons-java-0.2.11.jar:$APP_HOME/lib/mp3spi1.9.4.jar:$APP_HOME/lib/mysql-connector-java-8.0.17.jar:$APP_HOME/lib/QResources.jar:$APP_HOME/lib/reflections-0.9.11.jar:$APP_HOME/lib/RXTXcomm.jar:$APP_HOME/lib/RXTXLibrary.jar:$APP_HOME/lib/sli4j-slf4j-log4j-2.0.jar:$APP_HOME/lib/swing-worker-1.1.jar:$APP_HOME/lib/tritonus_share.jar:$APP_HOME/lib/vorbisspi1.0.2.jar:$APP_HOME/lib/zip4j-1.3.2.jar:$APP_HOME/lib/Java-WebSocket-1.5.1.jar:$APP_HOME/lib/jersey-container-servlet-core-2.27.jar:$APP_HOME/lib/jersey-container-jetty-http-2.27.jar:$APP_HOME/lib/jersey-server-2.27.jar:$APP_HOME/lib/jersey-media-json-jackson-2.27.jar:$APP_HOME/lib/jersey-hk2-2.27.jar:$APP_HOME/lib/okhttp-3.13.1.jar:$APP_HOME/lib/slf4j-api-1.7.25.jar:$APP_HOME/lib/jersey-client-2.27.jar:$APP_HOME/lib/jersey-media-jaxb-2.27.jar:$APP_HOME/lib/jersey-common-2.27.jar:$APP_HOME/lib/jersey-entity-filtering-2.27.jar:$APP_HOME/lib/javax.ws.rs-api-2.1.jar:$APP_HOME/lib/hk2-locator-2.5.0-b42.jar:$APP_HOME/lib/hk2-api-2.5.0-b42.jar:$APP_HOME/lib/hk2-utils-2.5.0-b42.jar:$APP_HOME/lib/javax.annotation-api-1.2.jar:$APP_HOME/lib/javax.inject-2.5.0-b42.jar:$APP_HOME/lib/validation-api-1.1.0.Final.jar:$APP_HOME/lib/jetty-server-9.4.7.v20170914.jar:$APP_HOME/lib/jetty-http-9.4.7.v20170914.jar:$APP_HOME/lib/jetty-io-9.4.7.v20170914.jar:$APP_HOME/lib/jetty-util-9.4.7.v20170914.jar:$APP_HOME/lib/jetty-continuation-9.4.7.v20170914.jar:$APP_HOME/lib/jackson-module-jaxb-annotations-2.8.10.jar:$APP_HOME/lib/jackson-databind-2.8.10.jar:$APP_HOME/lib/jackson-annotations-2.8.10.jar:$APP_HOME/lib/okio-1.17.2.jar:$APP_HOME/lib/osgi-resource-locator-1.0.1.jar:$APP_HOME/lib/javax.servlet-api-3.1.0.jar:$APP_HOME/lib/jackson-core-2.8.10.jar:$APP_HOME/lib/aopalliance-repackaged-2.5.0-b42.jar:$APP_HOME/lib/javassist-3.22.0-CR2.jar:$APP_HOME/lib/javax.inject-1.jar
+
+
+# Determine the Java command to use to start the JVM.
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        # IBM's JDK on AIX uses strange locations for the executables
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+    if [ ! -x "$JAVACMD" ] ; then
+        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+    fi
+else
+    JAVACMD="java"
+    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
+
+Please set the JAVA_HOME variable in your environment to match the
+location of your Java installation."
+fi
+
+# Increase the maximum file descriptors if we can.
+if [ "$cygwin" = "false" -a "$darwin" = "false" -a "$nonstop" = "false" ] ; then
+    MAX_FD_LIMIT=`ulimit -H -n`
+    if [ $? -eq 0 ] ; then
+        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
+            MAX_FD="$MAX_FD_LIMIT"
+        fi
+        ulimit -n $MAX_FD
+        if [ $? -ne 0 ] ; then
+            warn "Could not set maximum file descriptor limit: $MAX_FD"
+        fi
+    else
+        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
+    fi
+fi
+
+# For Darwin, add options to specify how the application appears in the dock
+if $darwin; then
+    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
+fi
+
+# For Cygwin or MSYS, switch paths to Windows format before running java
+if [ "$cygwin" = "true" -o "$msys" = "true" ] ; then
+    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
+    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
+
+    JAVACMD=`cygpath --unix "$JAVACMD"`
+
+    # We build the pattern for arguments to be converted via cygpath
+    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
+    SEP=""
+    for dir in $ROOTDIRSRAW ; do
+        ROOTDIRS="$ROOTDIRS$SEP$dir"
+        SEP="|"
+    done
+    OURCYGPATTERN="(^($ROOTDIRS))"
+    # Add a user-defined pattern to the cygpath arguments
+    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
+        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
+    fi
+    # Now convert the arguments - kludge to limit ourselves to /bin/sh
+    i=0
+    for arg in "$@" ; do
+        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
+        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
+
+        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
+            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
+        else
+            eval `echo args$i`="\"$arg\""
+        fi
+        i=`expr $i + 1`
+    done
+    case $i in
+        0) set -- ;;
+        1) set -- "$args0" ;;
+        2) set -- "$args0" "$args1" ;;
+        3) set -- "$args0" "$args1" "$args2" ;;
+        4) set -- "$args0" "$args1" "$args2" "$args3" ;;
+        5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
+        6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
+        7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
+        8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
+        9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
+    esac
+fi
+
+# Escape application args
+save () {
+    for i do printf %s\\n "$i" | sed "s/'/'\\\\''/g;1s/^/'/;\$s/\$/' \\\\/" ; done
+    echo " "
+}
+APP_ARGS=`save "$@"`
+
+# Collect all arguments for the java command, following the shell quoting and substitution rules
+eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $WEBSYSTEMS_PLUGIN_OPTS -classpath "\"$CLASSPATH\"" websystems.ServerStart "$APP_ARGS"
+
+exec "$JAVACMD" "$@"
