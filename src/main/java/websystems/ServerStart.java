@@ -55,7 +55,7 @@ public class ServerStart implements IStartServer {
             for (int i = 0; i < mac.length; i++) {
                 sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
             }
-            System.out.println(sb.toString());
+            System.out.println(sb);
 
         } catch (Exception e) {
             log.error("Ошибка запуска QWebClient сервера", e);
@@ -127,7 +127,6 @@ public class ServerStart implements IStartServer {
         udpServer.start();
 
         try {
-            server.start();
             server.join();
             log.info("Сервер WebSystemsPlugin запущен на 8008 порту");
         } catch (Exception e) {

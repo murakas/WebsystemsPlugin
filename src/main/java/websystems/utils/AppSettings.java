@@ -75,10 +75,10 @@ public class AppSettings {
             QProperties.get().load(property, true);
             QProperties.get().getAllProperties().stream().forEach(System.out::println);
             try {
-                AppSettings.put("apiUri", QProperties.get().getProperty(section, "apiUri").getValue());
-                AppSettings.put("tokenUri", QProperties.get().getProperty(section, "tokenUri").getValue());
-                AppSettings.put("username", QProperties.get().getProperty(section, "username").getValue());
-                AppSettings.put("password", EncryptorPass.decrypt(KEY, INIT_VECTOR, QProperties.get().getProperty(section, "password").getValue()));
+//                AppSettings.put("apiUri", QProperties.get().getProperty(section, "apiUri").getValue());
+//                AppSettings.put("tokenUri", QProperties.get().getProperty(section, "tokenUri").getValue());
+//                AppSettings.put("username", QProperties.get().getProperty(section, "username").getValue());
+//                AppSettings.put("password", EncryptorPass.decrypt(KEY, INIT_VECTOR, QProperties.get().getProperty(section, "password").getValue()));
                 AppSettings.put("mfcUUID", UUID.fromString(QProperties.get().getProperty(section, "mfcUUID").getValue()));
                 status = true;
             } catch (NullPointerException e) {

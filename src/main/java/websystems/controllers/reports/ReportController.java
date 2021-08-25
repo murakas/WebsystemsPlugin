@@ -3,7 +3,7 @@ package websystems.controllers.reports;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.log4j.Log4j2;
-import websystems.models.reports.*;
+import websystems.domains.reports.*;
 import ru.apertum.qsystem.hibernate.Dao;
 
 import javax.ws.rs.GET;

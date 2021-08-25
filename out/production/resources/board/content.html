@@ -116,7 +116,7 @@
       }
       
       const startWebSoket = () => {
-        let socket = new WebSocket("ws://localhost:8881");
+        let socket = new WebSocket("ws://localhost:8010");
         socket.onopen = (event) => {
           showLoading(false);
         }

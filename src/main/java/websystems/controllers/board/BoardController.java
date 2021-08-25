@@ -25,16 +25,14 @@ public class BoardController implements IIndicatorBoard {
 
     private final Gson GSON = new Gson();
     private final String BLINK = "blink";
-    private WSSBoard wssBoard = new WSSBoard(8881);
-    private String cmd = "firefox.exe -kiosk file://";
+    private WSS wss = new WSS(8010);
+    private String firefox;
     private Runtime run = Runtime.getRuntime();
-    private Process pr;
-    private String fullPath = BoardController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-    private final String PATH = fullPath.substring(0, fullPath.lastIndexOf("/"));
+    private Process process;
 
-    class WSSBoard extends WebSocketServer {
+    class WSS extends WebSocketServer {
 
-        public WSSBoard(int port) {
+        public WSS(int port) {
             super(new InetSocketAddress(port));
         }
 
@@ -66,7 +64,10 @@ public class BoardController implements IIndicatorBoard {
     }
 
     private void init() {
-        wssBoard.start();
+        wss.start();
+        String fullPath = BoardController.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String path = fullPath.substring(0, fullPath.lastIndexOf("/"));
+        firefox = "firefox.exe -kiosk file://" + path;
     }
 
     /**
@@ -74,7 +75,7 @@ public class BoardController implements IIndicatorBoard {
      */
     private String prepareContent() {
         final JsonObject jsonObject = new JsonObject();
-        // Построем всех ближайших
+        // Построим всех ближайших
         prepareNext(jsonObject);
 
         // Нужно найти всех вызванных и обрабатываемых, посмотреть их статус и заменить данные и id для мигания вызванных
@@ -121,7 +122,7 @@ public class BoardController implements IIndicatorBoard {
     }
 
     private void sendContent() {
-        wssBoard.broadcast(prepareContent());
+        wss.broadcast(prepareContent());
     }
 
     @Override
@@ -146,19 +147,19 @@ public class BoardController implements IIndicatorBoard {
 
     @Override
     public void close() {
-        if (pr != null && pr.isAlive()) pr.destroy();
+        if (process != null && process.isAlive()) process.destroy();
     }
 
     @Override
     public void refresh() {
-        if (pr != null && pr.isAlive()) pr.destroy();
+        if (process != null && process.isAlive()) process.destroy();
         runFirefox();
         sendContent();
     }
 
     @Override
     public void showBoard() {
-        if (pr != null && pr.isAlive()) pr.destroy();
+        if (process != null && process.isAlive()) process.destroy();
         runFirefox();
         sendContent();
     }
@@ -204,8 +205,8 @@ public class BoardController implements IIndicatorBoard {
 
     private void runFirefox() {
         try {
-            pr = run.exec(cmd + PATH + "/board/content.html");
-            pr.waitFor();
+            process = run.exec(firefox + "/board/content.html");
+            process.waitFor();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
         }

@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.log4j.Log4j2;
 import ru.apertum.qsystem.hibernate.Dao;
-import websystems.models.mdm.DataMdmObjectsAttributesUpload;
-import websystems.models.mdm.DataMdmObjectsUpload;
+import websystems.domains.mdm.DataMdmObjectsAttributesUpload;
+import websystems.domains.mdm.DataMdmObjectsUpload;
 import websystems.utils.AppSettings;
 
 import javax.ws.rs.GET;
@@ -25,9 +25,19 @@ import java.util.UUID;
 @Log4j2
 @Path("/api/mdm")
 public class MDMController {
+
     private final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final DateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss:SSS", Locale.ENGLISH);
     private final String mfcUuid = AppSettings.get("mfcUUID").toString();
+
+    private long go() {
+        log.trace("Действие пользователя");
+        return System.currentTimeMillis();
+    }
+
+    private void end(long start) {
+        log.trace("Действие завершено. Затрачено времени: " + ((double) (System.currentTimeMillis() - start)) / 1000 + " сек.");
+    }
 
     /**
      * Отчет по пользователям.
@@ -40,6 +50,8 @@ public class MDMController {
     @Path("/getData")
     @Produces(MediaType.APPLICATION_JSON)
     public String getData(@QueryParam("dateFrom") String dateFrom, @QueryParam("dateTo") String dateTo) {
+        final long start = go();
+        log.info("[/api/mdm/getData] Получить данные за период с " + dateFrom + " по " + dateTo);
 
         String sql = "select " +
                 "'0' as '4_152', " +
@@ -61,7 +73,7 @@ public class MDMController {
 
         ArrayList<DataMdmObjectsUpload> mdmObjectsUploads = new ArrayList<>();
 
-        Dao.get().execute(() -> Dao.get().getSession().doWork((Connection connection) -> {
+        Exception e = Dao.get().execute(() -> Dao.get().getSession().doWork((Connection connection) -> {
             final PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setString(1, dateFrom);
             preparedStatement.setString(2, dateTo);
@@ -135,6 +147,10 @@ public class MDMController {
                 }
             }
         }));
+        if (e != null) {
+            log.error("[/api/mdm/getData] Не удалось выполнить команду. " + e.getMessage());
+        }
+        end(start);
         return GSON.toJson(mdmObjectsUploads);
     }
 }
